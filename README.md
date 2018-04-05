@@ -34,10 +34,10 @@ To handle this, we will be using sklearns count vectorizer method which does the
 
 We will dive into the application of each of these into our model in a later step, but for now it is important to be aware of such preprocessing techniques available to us when dealing with textual data.
 
-Step 1: Implementing Bag of Words from scratch
+## Step 1: Implementing Bag of Words from scratch
 Before we dive into scikit-learn's Bag of Words(BoW) library to do the dirty work for us, let's implement it ourselves first so that we can understand what's happening behind the scenes.
 
-Step 1.1: Convert all strings to their lower case form.
+### Step 1.1: Convert all strings to their lower case form.
 
 Let's say we have a document set:
 ```
@@ -49,3 +49,52 @@ documents = ['Hello, how are you!',
              
 >Instructions:
 >Convert all the strings in the documents set to their lower case. Save them into a list called 'lower_case_documents'. You can convert strings to their lower case in python by using the lower() method.
+
+### Step 1.2: Removing all punctuations
+
+> Instructions: Remove all punctuation from the strings in the document set. Save them into a list called 'sans_punctuation_documents'.
+
+### Step 1.3: Tokenization
+
+Tokenizing a sentence in a document set means splitting up a sentence into individual words using a delimiter. The delimiter specifies what character we will use to identify the beginning and the end of a word(for example we could use a single space as the delimiter for identifying words in our document set.)
+
+> Instructions: Tokenize the strings stored in 'sans_punctuation_documents' using the split() method. and store the final document set in a list called 'preprocessed_documents'.
+
+### Step 1.4: Count frequencies
+
+Now that we have our document set in the required format, we can proceed to counting the occurrence of each word in each document of the document set. We will use the Counter method from the Python collections library for this purpose.
+
+Counter counts the occurrence of each item in the list and returns a dictionary with the key as the item being counted and the corresponding value being the count of that item in the list.
+
+> Instructions: Using the Counter() method and preprocessed_documents as the input, create a dictionary with the keys being each word in each document and the corresponding values being the frequency of occurrence of that word. Save each Counter dictionary as an item in a list called 'frequency_list'.
+
+## Step 2: Implementing Bag of Words in scikit-learn
+Now that we have implemented the BoW concept from scratch, let's go ahead and use scikit-learn to do this process in a clean and succinct way. We will use the same document set as we used in the previous step.
+
+> Instructions: Import the sklearn.feature_extraction.text.CountVectorizer method and create an instance of it called 'count_vector'.
+
+### Data preprocessing with CountVectorizer()
+
+In Step 1, we implemented a version of the CountVectorizer() method from scratch that entailed cleaning our data first. This cleaning involved converting all of our data to lower case and removing all punctuation marks. CountVectorizer() has certain parameters which take care of these steps for us. They are:
+1. lowercase = True
+The lowercase parameter has a default value of True which converts all of our text to its lower case form.
+2. token_pattern = (?u)\\b\\w\\w+\\b
+The token_pattern parameter has a default regular expression value of (?u)\\b\\w\\w+\\b which ignores all punctuation marks and treats them as delimiters, while accepting alphanumeric strings of length greater than or equal to 2, as individual tokens or words.
+3. stop_words
+The stop_words parameter, if set to english will remove all words from our document set that match a list of English stop words which is defined in scikit-learn. Considering the size of our dataset and the fact that we are dealing with SMS messages and not larger text sources like e-mail, we will not be setting this parameter value.
+
+You can take a look at all the parameter values of your count_vector object by simply printing out the object as follows:
+
+The get_feature_names() method returns our feature names for this dataset, which is the set of words that make up our vocabulary for 'documents'.
+
+> Instructions: Create a matrix with the rows being each of the 4 documents, and the columns being each word. The corresponding (row, column) value is the frequency of occurrence of that word(in the column) in a particular document(in the row). You can do this using the transform() method and passing in the document data set as the argument. The transform() method returns a matrix of numpy integers, you can convert this to an array using toarray(). Call the array 'doc_array'
+
+Now we have a clean representation of the documents in terms of the frequency distribution of the words in them. To make it easier to understand our next step is to convert this array into a dataframe and name the columns appropriately.
+
+> Instructions: Convert the array we obtained, loaded into 'doc_array', into a dataframe and set the column names to the word names(which you computed earlier using get_feature_names(). Call the dataframe 'frequency_matrix'.
+
+One potential issue that can arise from using this method out of the box is the fact that if our dataset of text is extremely large(say if we have a large collection of news articles or email data), there will be certain values that are more common that others simply due to the structure of the language itself. So for example words like 'is', 'the', 'an', pronouns, grammatical constructs etc could skew our matrix and affect our analyis.
+
+There are a couple of ways to mitigate this. One way is to use the stop_words parameter and set its value to english. This will automatically ignore all words(from our input text) that are found in a built in list of English stop words in scikit-learn.
+
+Another way of mitigating this is by using the tfidf method.
